@@ -80,7 +80,7 @@ CLERK_JWKS_URL = f"{CLERK_ISSUER_URL}/.well-known/jwks.json"
 CLERK_AUDIENCE = "http://localhost:3000"
 
 CORS_ALLOWED_ORIGINS = [
-    "https://example.com",
+    "https://eventsbit-vk5p.vercel.app",
     "https://sub.example.com",
     "http://localhost:3000",
     "http://127.0.0.1:9000",
