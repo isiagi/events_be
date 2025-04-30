@@ -1,5 +1,6 @@
 from django.db import models
 from cloudinary.models import CloudinaryField
+from django.utils.text import slugify
 
 class Event(models.Model):
     EVENT_TYPES = (
@@ -13,6 +14,7 @@ class Event(models.Model):
     
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=250, unique=True, blank=True, null=True)
     description = models.TextField()
     date = models.CharField(max_length=50)
     time = models.CharField(max_length=50)
@@ -30,6 +32,18 @@ class Event(models.Model):
     created_by = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+
+    def save(self, *args, **kwargs):
+        # Generate slug if not provided
+        if not self.slug:
+            self.slug = slugify(self.title)
+        
+        # Make sure spots_left is calculated correctly
+        # if not self.id:  # New event
+        #     self.spots_left = self.capacity - self.attendees
+            
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.title
