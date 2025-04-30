@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-1^n4ekkp$)#r^4%e+eq0xk418nw=ou!b)uf1*&ln4kngo(@l&$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'meetula-be.onrender.com']
 
 
 # Application definition
