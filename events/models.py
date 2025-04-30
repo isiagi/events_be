@@ -21,7 +21,7 @@ class Event(models.Model):
     type = models.CharField(max_length=50, choices=EVENT_TYPES)
     tags = models.JSONField()
     organizer = models.CharField(max_length=100)
-    # organizer_image = models.CharField(max_length=200)
+    organizer_image = models.CharField(max_length=200, blank=True, null=True)
     attendees = models.IntegerField(default=0)
     is_free = models.BooleanField(default=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
