@@ -1,5 +1,6 @@
 from django.db import models
 from cloudinary.models import CloudinaryField
+from django.utils.text import slugify
 
 class Event(models.Model):
     EVENT_TYPES = (
@@ -13,6 +14,7 @@ class Event(models.Model):
     
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=250, unique=True, blank=True, null=True)
     description = models.TextField()
     date = models.CharField(max_length=50)
     time = models.CharField(max_length=50)
@@ -21,15 +23,28 @@ class Event(models.Model):
     type = models.CharField(max_length=50, choices=EVENT_TYPES)
     tags = models.JSONField()
     organizer = models.CharField(max_length=100)
-    # organizer_image = models.CharField(max_length=200)
+    organizer_image = models.CharField(max_length=200, blank=True, null=True)
     attendees = models.IntegerField(default=0)
     is_free = models.BooleanField(default=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     spots_left = models.IntegerField(default=0)
     # Add user relationship - the creator of the event
+    registration_url = models.URLField(blank=True, null=True)
     created_by = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+
+    def save(self, *args, **kwargs):
+        # Generate slug if not provided
+        if not self.slug:
+            self.slug = slugify(self.title)
+        
+        # Make sure spots_left is calculated correctly
+        # if not self.id:  # New event
+        #     self.spots_left = self.capacity - self.attendees
+            
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.title

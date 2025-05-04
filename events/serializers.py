@@ -27,7 +27,7 @@ class EventSerializer(serializers.ModelSerializer):
         required=False)
     class Meta:
         model = Event
-        fields = ['id', 'title', 'description', 'date', 'time', 'location', 'is_online', 'type', 'tags', 'organizer', 'attendees', 'is_free', 'price', 'spots_left', 'images', 'uploaded_images']
+        fields = ['id', 'title', 'description', 'date', 'time','registration_url', 'organizer','organizer_image', 'location', 'is_online', 'type', 'tags', 'organizer', 'attendees', 'is_free', 'price', 'spots_left', 'images', 'uploaded_images', 'created_by']
 
     
     def validate_tags(self, value):
