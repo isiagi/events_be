@@ -8,6 +8,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 import json
 import logging
 from django.utils.text import slugify
+from django.http import Http404
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,13 @@ class EventViewSet(viewsets.ModelViewSet):
     def register(self, request, slug=None):
         """Custom endpoint to register for an event"""
         event = self.get_object()
+
+        if event.registration_url:
+            return Response({
+                'status': 'external_registration',
+                'registration_url': event.registration_url
+            })
+        
         if event.spots_left > 0:
             event.attendees += 1
             event.spots_left -= 1
