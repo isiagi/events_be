@@ -80,6 +80,7 @@ CLERK_JWKS_URL = f"{CLERK_ISSUER_URL}/.well-known/jwks.json"
 CLERK_AUDIENCE = "http://localhost:3000"
 
 CORS_ALLOWED_ORIGINS = [
+    "https://www.meetula.com",
     "https://eventsbit-ebon.vercel.app",
     "https://sub.example.com",
     "http://localhost:3000",
