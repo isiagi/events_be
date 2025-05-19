@@ -75,7 +75,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'server.wsgi.application'
 
-CLERK_ISSUER_URL = "https://clerk.meetula.com"
+CLERK_ISSUER_URL = "https://honest-kodiak-61.clerk.accounts.dev"
 CLERK_JWKS_URL = f"{CLERK_ISSUER_URL}/.well-known/jwks.json"
 CLERK_AUDIENCE = "http://localhost:3000"
 
