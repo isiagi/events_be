@@ -161,8 +161,6 @@ class EventViewSet(viewsets.ModelViewSet):
         Custom endpoint to get all events the current user is registered for
         """
         user_id = request.user.id
-
-        print(f"User ID: {user_id}")
         
         # Get registrations for this user
         registrations = EventRegistration.objects.filter(user_id=user_id).select_related('event')
