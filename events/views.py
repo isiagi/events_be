@@ -64,7 +64,7 @@ class EventViewSet(viewsets.ModelViewSet):
         event = self.get_object()
         
         # Get user info from Clerk token (you should have middleware that sets this)
-        user_id = request.user  # This should be the Clerk user ID
+        user_id = request.user.id  # This should be the Clerk user ID
         # user_email = getattr(request.user, 'email', None)
         # user_name = getattr(request.user, 'first_name', '') + ' ' + getattr(request.user, 'last_name', '')
         # user_name = user_name.strip() or getattr(request.user, 'username', None)
@@ -150,7 +150,7 @@ class EventViewSet(viewsets.ModelViewSet):
         """
         Custom endpoint to get all events created by the current user
         """
-        user_id = request.user.id
+        user_id = request.user
         events = self.get_queryset().filter(created_by=user_id)
         serializer = self.get_serializer(events, many=True)
         return Response(serializer.data)
@@ -161,6 +161,8 @@ class EventViewSet(viewsets.ModelViewSet):
         Custom endpoint to get all events the current user is registered for
         """
         user_id = request.user.id
+
+        print(f"User ID: {user_id}")
         
         # Get registrations for this user
         registrations = EventRegistration.objects.filter(user_id=user_id).select_related('event')
@@ -179,7 +181,7 @@ class EventViewSet(viewsets.ModelViewSet):
         Only accessible by event creator
         """
         event = self.get_object()
-        user_id = request.user.id
+        user_id = request.user
         
         # Check if user is the event creator (optional security check)
         if str(event.created_by) != str(user_id):
