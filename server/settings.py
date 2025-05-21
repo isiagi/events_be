@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'events',
     'rest_framework',
     'authentication',
+    'group'
 ]
 
 MIDDLEWARE = [
@@ -75,7 +76,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'server.wsgi.application'
 
-CLERK_ISSUER_URL = "https://clerk.meetula.com"
+CLERK_API_KEY = "sk_test_xS2ONwk3Xv5sPKBo4O2Lzc47cr2uAukeet5IhL6hmz"  # replace with your full key
+CLERK_API_BASE_URL = "https://api.clerk.com/v1"
+
+CLERK_ISSUER_URL = "https://honest-kodiak-61.clerk.accounts.dev"
 CLERK_JWKS_URL = f"{CLERK_ISSUER_URL}/.well-known/jwks.json"
 CLERK_AUDIENCE = "http://localhost:3000"
 
