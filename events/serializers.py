@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Event, EventImage
+from .models import Event, EventImage, EventRegistration
 from django.conf import settings
 import json
 
@@ -74,3 +74,32 @@ class EventCreateSerializer(serializers.ModelSerializer):
         for image_data in images_data:
             EventImage.objects.create(event=event, image=image_data)
         return event
+    
+
+
+class EventRegistrationSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(read_only=True)
+    user_email = serializers.EmailField(read_only=True)
+    
+    class Meta:
+        model = EventRegistration
+        fields = ['id', 'event', 'user_id', 'user_name', 'user_email', 'registered_at']
+        read_only_fields = ['registered_at']
+
+class EventWithRegistrationSerializer(EventSerializer):
+    """
+    Event serializer that includes registration status for the current user
+    """
+    is_registered = serializers.SerializerMethodField()
+    
+    def get_is_registered(self, obj):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
+            return EventRegistration.objects.filter(
+                event=obj, 
+                user_id=request.user.id
+            ).exists()
+        return False
+    
+    class Meta(EventSerializer.Meta):
+        fields = EventSerializer.Meta.fields + ['is_registered']

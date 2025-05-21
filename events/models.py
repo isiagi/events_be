@@ -1,6 +1,7 @@
 from django.db import models
 from cloudinary.models import CloudinaryField
 from django.utils.text import slugify
+from django.utils import timezone
 
 class Event(models.Model):
     EVENT_TYPES = (
@@ -59,3 +60,22 @@ class EventImage(models.Model):
 
     def __str__(self):
         return self.event.title
+    
+
+
+class EventRegistration(models.Model):
+    """
+    Model to track user registrations for events
+    """
+    event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='registrations')
+    user_id = models.CharField(max_length=200)  # Clerk user ID
+    user_email = models.EmailField(blank=True, null=True)  # Store user email for easy reference
+    user_name = models.CharField(max_length=200, blank=True, null=True)  # Store user name
+    registered_at = models.DateTimeField(default=timezone.now)
+    
+    class Meta:
+        unique_together = ['event', 'user_id']  # Prevent duplicate registrations
+        ordering = ['-registered_at']
+    
+    def __str__(self):
+        return f"{self.user_name or self.user_id} - {self.event.title}"
