@@ -31,6 +31,7 @@ class Event(models.Model):
     spots_left = models.IntegerField(default=0)
     # Add user relationship - the creator of the event
     registration_url = models.URLField(blank=True, null=True)
+    groupId = models.ForeignKey('group.Group', on_delete=models.SET_NULL, null=True, blank=True)
     created_by = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)

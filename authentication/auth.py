@@ -13,7 +13,7 @@ class ClerkAuthentication(authentication.BaseAuthentication):
         return PyJWKClient(settings.CLERK_JWKS_URL)
 
     def get_clerk_user_info(self, user_id):
-        print(f"Fetching user info for user ID: {user_id}")
+        # print(f"Fetching user info for user ID: {user_id}")
         headers = {
             "Authorization": f"Bearer {settings.CLERK_API_KEY}"
         }
@@ -58,10 +58,10 @@ class ClerkAuthentication(authentication.BaseAuthentication):
             user_image = user_info.get('image_url', '')
 
 
-            print(f"User ID: {clerk_user_id}")
-            print(f"User Email: {email}")
-            print(f"User Name: {first_name} {last_name}")
-            print(f"User Image: {user_image}")
+            # print(f"User ID: {clerk_user_id}")
+            # print(f"User Email: {email}")
+            # print(f"User Name: {first_name} {last_name}")
+            # print(f"User Image: {user_image}")
 
             # 👤 Get or create the Django user
             user, _ = User.objects.get_or_create(
@@ -81,10 +81,10 @@ class ClerkAuthentication(authentication.BaseAuthentication):
             user.user_image = user_image
             user.save()
 
-            print(f"User ID: {user.username}")
-            print(f"User Email: {user.email}")
-            print(f"User Name: {user.first_name} {user.last_name}")
-            print(f"User Image: {user.user_image}")
+            # print(f"User ID: {user.username}")
+            # print(f"User Email: {user.email}")
+            # print(f"User Name: {user.first_name} {user.last_name}")
+            # print(f"User Image: {user.user_image}")
 
             request.auth_token = token
             return (user, None)
