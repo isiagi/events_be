@@ -50,6 +50,9 @@ class Group(models.Model):
         """Return the group's cover image"""
         cover = self.images.filter(is_cover=True).first()
         return cover.image if cover else None
+    
+    class Meta:
+        ordering = ['-created_at']
 
 
 class GroupImage(models.Model):

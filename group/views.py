@@ -6,6 +6,7 @@ from .serializers import GroupSerializer
 # from authentication import ClerkAuthentication  # Import your custom authentication
 from django.http import Http404
 from django.utils.text import slugify
+from authentication.auth import ClerkAuthentication
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -22,22 +23,17 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    # authentication_classes = [ClerkAuthentication]
+    authentication_classes = [ClerkAuthentication]
     # permission_classes = [IsOwnerOrReadOnly]
+    authentication_classes = []
     lookup_field = 'slug'
 
-    # def get_permissions(self):
-    #     """
-    #     Instantiates and returns the list of permissions that this view requires.
-    #     """
-    #     if self.action in ['list', 'retrieve']:
-    #         # Allow unauthenticated access for listing groups and retrieving individual groups
-    #         permission_classes = [permissions.AllowAny]
-    #     else:
-    #         # For all other actions (create, update, delete, join, leave), use default permissions
-    #         permission_classes = self.permission_classes
-        
-    #     return [permission() for permission in permission_classes]
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            self.authentication_classes = []  # Disable Clerk for public actions
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
+
 
     def get_object(self):
         """

@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Group, GroupImage
 from django.contrib.auth.models import User
 from django.conf import settings
+from events.serializers import EventSerializer
 
 class UserSerializer(serializers.ModelSerializer):
     clerk_id = serializers.SerializerMethodField()
@@ -51,6 +52,8 @@ class GroupSerializer(serializers.ModelSerializer):
     primary_image_url = serializers.SerializerMethodField()
     member_count = serializers.ReadOnlyField()
     event_count = serializers.ReadOnlyField()
+
+    events = EventSerializer(many=True, read_only=True)
     
     class Meta:
         model = Group
@@ -58,7 +61,8 @@ class GroupSerializer(serializers.ModelSerializer):
             'id', 'name', 'slug', 'description', 'category', 'tags', 
             'location', 'is_online', 'member_count', 'event_count',
             'created_at', 'owner', 'members', 'images', 'uploaded_images', 
-            'uploaded_cover_image', 'cover_image_url', 'primary_image_url'
+            'uploaded_cover_image', 'cover_image_url', 'primary_image_url',
+            'events'
         ]
         read_only_fields = [
             'slug', 'created_at', 'member_count', 'event_count', 
