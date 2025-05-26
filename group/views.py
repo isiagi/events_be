@@ -1,38 +1,32 @@
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
+from rest_framework.views import APIView
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Group
 from .serializers import GroupSerializer
-# from authentication import ClerkAuthentication  # Import your custom authentication
 from django.http import Http404
 from django.utils.text import slugify
 from authentication.auth import ClerkAuthentication
 
-class IsOwnerOrReadOnly(permissions.BasePermission):
-    """
-    Custom permission to only allow owners of an object to edit it.
-    """
-    def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        
-        # Write permissions are only allowed to the owner
-        return obj.owner == request.user
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def debug_auth(request):
+    print("User:", request.user)
+    print("Auth:", request.auth_token)
+    return Response({
+        "user": str(request.user),
+        "auth": str(request.auth_token)
+    })
 
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    authentication_classes = [ClerkAuthentication]
-    # permission_classes = [IsOwnerOrReadOnly]
-    authentication_classes = []
     lookup_field = 'slug'
+ 
 
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            self.authentication_classes = []  # Disable Clerk for public actions
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
 
 
     def get_object(self):
@@ -54,17 +48,25 @@ class GroupViewSet(viewsets.ModelViewSet):
             obj = queryset.filter(slug=normalized_slug).first()
         
         if obj is None:
-            raise Http404(f"No event found with slug: {slug_from_url}")
+            raise Http404(f"No group found with slug: {slug_from_url}")
             
         return obj
     
-    def perform_create(self, serializer):
-        serializer.save()
+
+    # Get groups created by the current user
+    @action(detail=False, methods=['get'])
+    def my_groups(self, request):
+        groups = self.get_queryset().filter(owner=request.user.id)
+        serializer = self.get_serializer(groups, many=True)
+        return Response(serializer.data)
+    
     
     @action(detail=True, methods=['post'])
-    def join(self, request, pk=None):
+    def join(self, request, slug=None):
         group = self.get_object()
         user = request.user
+
+        print(f"Request user: {request.user.email}")
         
         if user in group.members.all():
             return Response({'detail': 'User is already a member of this group.'}, 
@@ -78,7 +80,7 @@ class GroupViewSet(viewsets.ModelViewSet):
                        status=status.HTTP_200_OK)
     
     @action(detail=True, methods=['post'])
-    def leave(self, request, pk=None):
+    def leave(self, request, slug=None):
         group = self.get_object()
         user = request.user
         

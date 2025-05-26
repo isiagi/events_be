@@ -8,6 +8,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from functools import lru_cache
 
 class ClerkAuthentication(authentication.BaseAuthentication):
+
+
     @lru_cache(maxsize=1)
     def get_jwks_client(self):
         return PyJWKClient(settings.CLERK_JWKS_URL)
@@ -24,6 +26,9 @@ class ClerkAuthentication(authentication.BaseAuthentication):
         return response.json()
 
     def authenticate(self, request):
+
+        # print("Incoming request headers:", dict(request.headers))
+
         auth_header = request.headers.get('Authorization', '')
         if not auth_header.startswith('Bearer '):
             return None
@@ -52,9 +57,11 @@ class ClerkAuthentication(authentication.BaseAuthentication):
             # 🔄 Fetch full user info from Clerk
             user_info = self.get_clerk_user_info(clerk_user_id)
 
+            # print(f"User info: {user_info}")
+
             email = user_info.get('email_addresses', [{}])[0].get('email_address', '')
-            first_name = user_info.get('first_name', '')
-            last_name = user_info.get('last_name', '')
+            first_name = user_info.get('first_name') or ''
+            last_name = user_info.get('last_name') or ''
             user_image = user_info.get('image_url', '')
 
 
@@ -62,6 +69,7 @@ class ClerkAuthentication(authentication.BaseAuthentication):
             # print(f"User Email: {email}")
             # print(f"User Name: {first_name} {last_name}")
             # print(f"User Image: {user_image}")
+            
 
             # 👤 Get or create the Django user
             user, _ = User.objects.get_or_create(
@@ -70,7 +78,7 @@ class ClerkAuthentication(authentication.BaseAuthentication):
                     'email': email,
                     'first_name': first_name,
                     'last_name': last_name,
-                    'user_image': user_image
+                    # 'user_image': user_image
                 }
             )
 
@@ -78,8 +86,13 @@ class ClerkAuthentication(authentication.BaseAuthentication):
             user.email = email
             user.first_name = first_name
             user.last_name = last_name
-            user.user_image = user_image
-            user.save()
+            # user.user_image = user_image
+
+            try:
+                user.save()
+            except Exception as e:
+                print("Error saving user:", str(e))
+                raise AuthenticationFailed("User creation failed")
 
             # print(f"User ID: {user.username}")
             # print(f"User Email: {user.email}")
