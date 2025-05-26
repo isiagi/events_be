@@ -22,6 +22,8 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('events.urls')),
+    path('api/', include('group.urls')),
+    path('api/', include('authentication.urls')),
 ]
 
 # Add this if you need to serve media files during development

@@ -36,8 +36,8 @@ class EventViewSet(viewsets.ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         obj = queryset.filter(slug=slug_from_url).first()
         
-        # If not found and slug contains spaces, try with a normalized version
-        if not obj and ' ' in slug_from_url:
+        # If not found, always try with normalized slug
+        if not obj:
             normalized_slug = slugify(slug_from_url)
             obj = queryset.filter(slug=normalized_slug).first()
         
@@ -70,8 +70,12 @@ class EventViewSet(viewsets.ModelViewSet):
         # user_name = user_name.strip() or getattr(request.user, 'username', None)
 
         # print(request.data, 'request data')
-        user_email = request.data.get('email')
-        user_name = request.data.get('name')
+        # user_email = request.data.get('email')
+        # user_name = request.data.get('name')
+        user_email = request.user.email
+        user_name = request.user.first_name + ' ' + request.user.last_name
+
+        print(f"Request user: {request.user.email}")
 
         print(f"User ID: {user_id}")
         print(f"User Email: {user_email}")
@@ -104,7 +108,7 @@ class EventViewSet(viewsets.ModelViewSet):
             EventRegistration.objects.create(
                 event=event,
                 user_id=user_id,
-                user_email=user_email,
+                user_email=request.user.email,
                 user_name=user_name
             )
             
@@ -123,6 +127,8 @@ class EventViewSet(viewsets.ModelViewSet):
         """Custom endpoint to unregister from an event"""
         event = self.get_object()
         user_id = request.user.id
+
+        print(f"Request user: {request.user.email}")
         
         try:
             # Use transaction to ensure data consistency
