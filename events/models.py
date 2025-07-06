@@ -19,6 +19,7 @@ class Event(models.Model):
     description = models.TextField()
     date = models.CharField(max_length=50)
     time = models.CharField(max_length=50)
+    end_time = models.CharField(max_length=50, blank=True, null=True)
     location = models.CharField(max_length=200)
     is_online = models.BooleanField(default=False)
     type = models.CharField(max_length=50, choices=EVENT_TYPES)
