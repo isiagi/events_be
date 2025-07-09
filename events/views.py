@@ -10,6 +10,8 @@ import logging
 from django.utils.text import slugify
 from django.http import Http404
 from django.db import transaction
+from django.utils import timezone
+from django.db.models import Case, When, Value, IntegerField
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +24,22 @@ class EventViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'description', 'location', 'organizer']
     ordering_fields = ['date', 'price', 'attendees']
     lookup_field = 'slug'
+
+    def get_queryset(self):
+        """
+        Override to return events ordered by date with current/upcoming events first
+        """
+        queryset = super().get_queryset()
+        now = timezone.now()
+        
+        # Order by: upcoming events first (by date), then past events (most recent first)
+        return queryset.annotate(
+            is_upcoming=Case(
+                When(date__gte=now, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField()
+            )
+        ).order_by('-is_upcoming', 'date', '-date')
 
     def get_object(self):
         """
@@ -54,7 +72,8 @@ class EventViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def upcoming(self, request):
         """Custom endpoint to get upcoming events sorted by date"""
-        events = self.get_queryset().order_by('date')[:10]
+        now = timezone.now()
+        events = self.get_queryset().filter(date__gte=now).order_by('date')[:10]
         serializer = self.get_serializer(events, many=True)
         return Response(serializer.data)
     
